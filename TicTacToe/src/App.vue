@@ -17,6 +17,7 @@
       return {
         gameData: {
           started:false,
+          over: false,
           moves:['123',
                  '456',
                  '789',

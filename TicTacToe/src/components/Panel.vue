@@ -34,34 +34,57 @@ export default {
       let button = document.getElementById(event.target.id);
       this.gameData.started = !this.gameData.started;
       if( this.gameData.started) {
-        button.innerText = 'Cancel';
+        button.innerText = 'Reset';
       }
       else {
         button.innerText = 'Start';
-        let elements = document.getElementsByClassName('box');
-        for(let i=0; i < elements.length; i++) {
-          elements.item(i).textContent = '';
-        }
+        this.reset();
       }
     },
     mark: function( event ) {
-      if(!this.gameData.started) 
+      if(!this.gameData.started || this.gameData.won) 
         return;
-      let mark = '';
-      this.gameData.turn == 'X' ? this.gameData.turn = 'O' : this.gameData.turn = 'X';
-      document.getElementById(event.target.id).textContent = this.gameData.turn;
-      this.gameData.turn == 'X' ? currentMoves[0] += event.target.id.toString() : currentMoves[1] += event.target.id.toString();
 
-      let winningString = '';
+      document.getElementById(event.target.id).textContent = this.gameData.turn;
+      this.gameData.turn == 'X' ? this.currentMoves[0] += event.target.id.toString() : this.currentMoves[1] += event.target.id.toString();
+
       // Check for great succcess!
-      this.currentMoves.forEach( currentMove => {
-        this.gameData.moves.forEach( move => {
-          // Check if any of the winning moves are in the currentMove string.
-          if( move.search(currentMove) > -1) {
-            console.log('winner');
-          }
-        });
+      // Check each cell move against the possible winning combinations
+      // in the App gameData object.
+      for(let i=0;i<this.gameData.moves.length;i++) {
+        for(let j=0; j < this.currentMoves.length;j++) {
+          let cells = this.currentMoves[j].split("");
+          let total = 0;
+          for(let k=0; k < cells.length;k++) {
+            if(this.gameData.moves[i].includes(cells[k])) {
+              total++;
+              if (total ==3) {// Win!
+                console.log(this.gameData.turn + " wins!");
+                this.showWinning(this.gameData.moves[i], this.gameData.turn);
+                this.gameData.won = true;
+                return;
+              }
+            }
+          };
+        };
+      };
+
+      this.gameData.turn == 'X' ? this.gameData.turn = 'O' : this.gameData.turn = 'X';
+    },
+    showWinning: function( movesArray, winner) {
+      movesArray.split("").forEach(id => {
+        document.getElementById(id).style.background = 'yellow';
       })
+    },
+    reset: function() {
+      let elements = document.getElementsByClassName('box');
+      for(let i=0; i < elements.length; i++) {
+        elements.item(i).textContent = '';
+        elements.item(i).style.background = "";
+      }
+      this.currentMoves = ['',''];
+      this.gameData.over = false;
+      this.gameData.won = false;
     }
   }
 }
